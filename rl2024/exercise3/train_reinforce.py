@@ -24,7 +24,7 @@ CARTPOLE_CONFIG = {
     "eval_freq": 10000,
     "eval_episodes": 100,
     "hidden_size": (64,),
-    "learning_rate": 1e-3,
+    "learning_rate": 2e-3,
 }
 
 CARTPOLE_CONFIG.update(CARTPOLE_CONSTANTS)

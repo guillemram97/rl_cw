@@ -17,7 +17,7 @@ def question2_1() -> str:
     b) 0.8
     return: (str): your answer as a string. accepted strings: "a" or "b"
     """
-    answer = ""  # TYPE YOUR ANSWER HERE "a" or "b"
+    answer = "a"  # TYPE YOUR ANSWER HERE "a" or "b"
     return answer
 
 
@@ -29,12 +29,13 @@ def question2_2() -> str:
     b) 0.8
     return: (str): your answer as a string. accepted strings: "a" or "b"
     """
-    answer = ""  # TYPE YOUR ANSWER HERE "a" or "b"
+    answer = "a"  # TYPE YOUR ANSWER HERE "a" or "b"
     return answer
 
 
 def question2_3() -> str:
     """
+    CREC Q SERA Q-LEARNING!
     (Multiple choice question):
     Between the two algorithms (Q-Learning and First-Visit MC), whose average evaluation return is impacted by gamma in
     a greater way?
@@ -42,7 +43,7 @@ def question2_3() -> str:
     b) First-Visit Monte Carlo
     return: (str): your answer as a string. accepted strings: "a" or "b"
     """
-    answer = ""  # TYPE YOUR ANSWER HERE "a" or "b"
+    answer = "b"  # TYPE YOUR ANSWER HERE "a" or "b"
     return answer
 
 
@@ -70,7 +71,7 @@ def question3_1() -> str:
     c) 2e-4
     return: (str): your answer as a string. accepted strings: "a", "b" or "c"
     """
-    answer = ""  # TYPE YOUR ANSWER HERE "a", "b" or "c"
+    answer = "b"  # TYPE YOUR ANSWER HERE "a", "b" or "c"
     return answer
 
 
@@ -114,7 +115,7 @@ def question3_4() -> str:
     e) it depends on the number of training timesteps
     return: (str): your answer as a string. accepted strings: "a", "b", "c", "d" or "e"
     """
-    answer = ""  # TYPE YOUR ANSWER HERE "a", "b", "c", "d" or "e"
+    answer = "b"  # TYPE YOUR ANSWER HERE "a", "b", "c", "d" or "e"
     return answer
 
 
@@ -130,7 +131,7 @@ def question3_5() -> str:
     e) it depends on the number of training timesteps
     return: (str): your answer as a string. accepted strings: "a", "b", "c", "d" or "e"
     """
-    answer = ""  # TYPE YOUR ANSWER HERE "a", "b", "c", "d" or "e"
+    answer = "a"  # TYPE YOUR ANSWER HERE "a", "b", "c", "d" or "e"
     return answer
 
 
@@ -165,7 +166,7 @@ def question3_8() -> str:
     the DQN training process.
     return: answer (str): your answer as a string (100 words max)
     """
-    answer = ""  # TYPE YOUR ANSWER HERE (100 words max)
+    answer = "Because we update with frequency 2000"  # TYPE YOUR ANSWER HERE (100 words max)
     return answer
 
 

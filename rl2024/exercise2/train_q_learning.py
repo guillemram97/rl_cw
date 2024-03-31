@@ -9,7 +9,7 @@ CONFIG = {
     "eval_freq": 1000, # keep this unchanged
     "alpha": 0.05,
     "epsilon": 0.9,
-    "gamma": 0.99,
+    "gamma": 0.8,
 }
 CONFIG.update(CONSTANTS)
 

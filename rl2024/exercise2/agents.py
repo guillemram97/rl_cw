@@ -4,6 +4,7 @@ import random
 from typing import List, Dict, DefaultDict
 from gymnasium.spaces import Space
 from gymnasium.spaces.utils import flatdim
+import pdb
 
 
 class Agent(ABC):
@@ -53,10 +54,11 @@ class Agent(ABC):
         :param obs (int): received observation representing the current environmental state
         :return (int): index of selected action
         """
-        ### PUT YOUR CODE HERE ###
-        raise NotImplementedError("Needed for Q2")
-        ### RETURN AN ACTION HERE ###
-        return -1
+        random_val = random.random()
+        if random_val < self.epsilon:
+            return random.randint(0, self.n_acts - 1)
+        else:
+            return max(range(self.n_acts), key=lambda act: self.q_table[(obs, act)])
 
     @abstractmethod
     def schedule_hyperparameters(self, timestep: int, max_timestep: int):
@@ -104,8 +106,14 @@ class QLearningAgent(Agent):
         :param done (bool): flag indicating whether a terminal state has been reached
         :return (float): updated Q-value for current observation-action pair
         """
-        ### PUT YOUR CODE HERE ###
-        raise NotImplementedError("Needed for Q2")
+        if done: 
+            self.q_table[(obs, action)] = self.q_table[(obs, action)] + self.alpha * (reward - self.q_table[(obs, action)])
+            return self.q_table[(obs, action)]
+        max_act = 0
+        for aux_act in range(self.n_acts):
+            if self.q_table[(n_obs, aux_act)] > self.q_table[(n_obs, max_act)]:
+                max_act = aux_act
+        self.q_table[(obs, action)] = self.q_table[(obs, action)] + self.alpha * (reward + self.gamma * self.q_table[(n_obs, max_act)] - self.q_table[(obs, action)])
         return self.q_table[(obs, action)]
 
     def schedule_hyperparameters(self, timestep: int, max_timestep: int):
@@ -153,8 +161,19 @@ class MonteCarloAgent(Agent):
             indexed by the state action pair.
         """
         updated_values = {}
-        ### PUT YOUR CODE HERE ###
-        raise NotImplementedError("Needed for Q2")
+        G = 0
+        for i in reversed(range(len(obses))):
+            obs = obses[i]
+            action = actions[i]
+            reward = rewards[i]
+            G = self.gamma * G + reward
+            sa_pair = (obs, action)
+            if not sa_pair in zip(obses[:i], actions[:i]): 
+                if sa_pair not in self.sa_counts: self.sa_counts[sa_pair] = 1
+                else: self.sa_counts[sa_pair] += 1
+                self.q_table[sa_pair] = (self.q_table[sa_pair]*(self.sa_counts[sa_pair] - 1) + G)/self.sa_counts[sa_pair]
+                updated_values[sa_pair] = self.q_table[sa_pair]
+
         return updated_values
 
     def schedule_hyperparameters(self, timestep: int, max_timestep: int):

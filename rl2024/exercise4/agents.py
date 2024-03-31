@@ -7,6 +7,7 @@ import torch
 import torch.nn.functional as F
 from torch.autograd import Variable
 from torch.distributions import Normal
+import pdb
 
 from rl2024.exercise3.agents import Agent
 from rl2024.exercise3.networks import FCNetwork
@@ -178,8 +179,15 @@ class DDPG(Agent):
         :param explore (bool): flag indicating whether we should explore
         :return (sample from self.action_space): action the agent should perform
         """
-        ### PUT YOUR CODE HERE ###
-        raise NotImplementedError("Needed for Q4")
+        self.actor.eval()
+
+        obs_aux = torch.from_numpy(obs).float()
+        if not explore:
+            action = self.actor(obs_aux).detach()
+        else:
+            action = self.actor(obs_aux).detach() + self.noise.sample()
+        self.actor.train()
+        return torch.clamp(action,self.lower_action_bound, self.upper_action_bound)
 
     def update(self, batch: Transition) -> Dict[str, float]:
         """Update function for DQN
@@ -193,11 +201,41 @@ class DDPG(Agent):
         :param batch (Transition): batch vector from replay buffer
         :return (Dict[str, float]): dictionary mapping from loss names to loss values
         """
-        ### PUT YOUR CODE HERE ###
-        raise NotImplementedError("Needed for Q4")
+        self.actor.train()
+        self.critic.train()
+        self.actor_target.train()
+        self.critic_target.train()
+
+        states, actions, next_states, rewards, done = batch.states, batch.actions, batch.next_states, batch.rewards, batch.done
+        
 
         q_loss = 0.0
         p_loss = 0.0
+        pdb.set_trace()
+
+        # Update critic
+        self.critic_optim.zero_grad()
+        q_values = self.critic(torch.cat((obs, actions), dim=1))
+        next_actions = self.actor_target(next_obs)
+        next_q_values = self.critic_target(torch.cat((next_obs, next_actions), dim=1))
+        target_q_values = rewards + self.gamma * next_q_values * (1 - dones)
+        q_loss = F.mse_loss(q_values, target_q_values.detach())
+        q_loss.backward()
+        self.critic_optim.step()
+
+        # Update actor
+        self.policy_optim.zero_grad()
+        p_loss = -self.critic(torch.cat((obs, self.actor(obs)), dim=1)).mean()
+        p_loss.backward()
+        self.policy_optim.step()
+
+        # Update target networks
+        self.actor_target.soft_update(self.actor, self.tau)
+        self.critic_target.soft_update(self.critic, self.tau)
+
+
+
+
         return {
             "q_loss": q_loss,
             "p_loss": p_loss,

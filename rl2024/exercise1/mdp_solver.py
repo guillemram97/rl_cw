@@ -4,7 +4,7 @@ from typing import List, Tuple, Dict, Optional, Hashable
 
 from rl2024.constants import EX1_CONSTANTS as CONSTANTS
 from rl2024.exercise1.mdp import MDP, Transition, State, Action
-
+import pdb
 
 class MDPSolver(ABC):
     """Base class for MDP solvers
@@ -80,8 +80,22 @@ class ValueIteration(MDPSolver):
             E.g. V[3] returns the computed value for state 3
         """
         V = np.zeros(self.state_dim)
-        ### PUT YOUR CODE HERE ###
-        raise NotImplementedError("Needed for Q1")
+        delta = theta
+        while delta >= theta:
+            delta = 0
+            for state in range(self.state_dim):
+                v = V[state]
+                max_val = 0
+                for action in range(self.action_dim):
+                    tmp_val = 0
+                    for s_prime in range(self.state_dim):
+                        reward = self.mdp.R[state, action, s_prime]
+                        tmp_val += self.mdp.P[state, action, s_prime] * (reward + self.gamma * V[s_prime])
+                    if tmp_val > max_val:
+                        max_val = tmp_val
+                V[state] = max_val
+                delta = max(delta, abs(v - V[state]))
+
         return V
 
     def _calc_policy(self, V: np.ndarray) -> np.ndarray:
@@ -102,8 +116,18 @@ class ValueIteration(MDPSolver):
             policy[S, OTHER_ACTIONS] = 0
         """
         policy = np.zeros([self.state_dim, self.action_dim])
-        ### PUT YOUR CODE HERE ###
-        raise NotImplementedError("Needed for Q1")
+        for s in range(self.state_dim):
+            max_val = 0
+            max_action = 0
+            for a in range(self.action_dim):
+                tmp_val = 0
+                for s_prime in range(self.state_dim):
+                    reward = self.mdp.R[s, a, s_prime]
+                    tmp_val += self.mdp.P[s, a, s_prime] * (reward + self.gamma * V[s_prime])
+                if tmp_val > max_val:
+                    max_val = tmp_val
+                    max_action = a
+            policy[s, max_action] = 1
         return policy
 
     def solve(self, theta: float = 1e-6) -> Tuple[np.ndarray, np.ndarray]:
@@ -148,9 +172,20 @@ class PolicyIteration(MDPSolver):
             A 1D NumPy array that encodes the computed value function
             It is indexed as (State) where V[State] is the value of state 'State'
         """
+        
         V = np.zeros(self.state_dim)
-        ### PUT YOUR CODE HERE ###
-        raise NotImplementedError("Needed for Q1")
+        delta = self.theta
+        while delta >= self.theta:
+            delta = 0
+            new_V = np.zeros([self.state_dim])
+            for s in range(self.state_dim):
+                for s_prime in range(self.state_dim):
+                    rewards = self.mdp.R[s, :, s_prime]
+                    for action, reward in enumerate(rewards):
+                        if policy[s, action]:
+                            new_V[s] += self.mdp.P[s, action, s_prime] * (reward + self.gamma * V[s_prime])
+                delta = max(delta, abs(new_V[s] - V[s]))
+            V = new_V    
         return np.array(V)
 
     def _policy_improvement(self) -> Tuple[np.ndarray, np.ndarray]:
@@ -173,9 +208,27 @@ class PolicyIteration(MDPSolver):
             Tuple of calculated policy and value function
         """
         policy = np.zeros([self.state_dim, self.action_dim])
-        V = np.zeros([self.state_dim])
-        ### PUT YOUR CODE HERE ###
-        raise NotImplementedError("Needed for Q1")
+        policy_stable = False
+        while not policy_stable:
+            V = self._policy_eval(policy)
+            policy_stable = True
+            for s in range(self.state_dim):
+                a = np.argmax(policy[s])
+                max_val = 0
+                max_action = 0
+                for a_candidate in range(self.action_dim):
+                    tmp_val = 0
+                    for s_prime in range(self.state_dim):
+                        reward = self.mdp.R[s, a_candidate, s_prime]
+                        tmp_val += self.mdp.P[s, a_candidate, s_prime] * (reward + self.gamma * V[s_prime])
+                    if tmp_val > max_val:
+                        max_val = tmp_val
+                        max_action = a_candidate
+                if max_action != a:
+                    policy_stable = False
+                    for idx in range(self.action_dim):
+                        policy[s, idx] = 0
+                    policy[s, max_action] = 1     
         return policy, V
 
     def solve(self, theta: float = 1e-6) -> Tuple[np.ndarray, np.ndarray]:
