@@ -206,26 +206,24 @@ class DDPG(Agent):
         self.actor_target.train()
         self.critic_target.train()
 
-        states, actions, next_states, rewards, done = batch.states, batch.actions, batch.next_states, batch.rewards, batch.done
-        
+        states, actions, next_states, rewards, done = batch.states.clone().detach(), batch.actions.clone().detach(), batch.next_states.clone().detach(), batch.rewards.clone().detach(), batch.done.clone().detach()
 
         q_loss = 0.0
         p_loss = 0.0
-        pdb.set_trace()
 
         # Update critic
         self.critic_optim.zero_grad()
-        q_values = self.critic(torch.cat((obs, actions), dim=1))
-        next_actions = self.actor_target(next_obs)
-        next_q_values = self.critic_target(torch.cat((next_obs, next_actions), dim=1))
-        target_q_values = rewards + self.gamma * next_q_values * (1 - dones)
+        q_values = self.critic(torch.cat((actions, states), dim=1))
+        next_actions = self.actor_target(next_states)
+        next_q_values = self.critic_target(torch.cat((next_actions, next_states), dim=1))
+        target_q_values = rewards + self.gamma * next_q_values * (1 - done)
         q_loss = F.mse_loss(q_values, target_q_values.detach())
         q_loss.backward()
         self.critic_optim.step()
 
         # Update actor
         self.policy_optim.zero_grad()
-        p_loss = -self.critic(torch.cat((obs, self.actor(obs)), dim=1)).mean()
+        p_loss = -self.critic(torch.cat((states, self.actor(states)), dim=1)).mean()
         p_loss.backward()
         self.policy_optim.step()
 
