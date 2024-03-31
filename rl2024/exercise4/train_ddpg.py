@@ -23,21 +23,24 @@ SWEEP_SAVE_ALL_WEIGTHS = False # TRUE TO SAVE ALL WEIGHTS FROM EACH SEED
 ENV = "RACETRACK"
 
 RACETRACK_CONFIG = {
+    "critic_hidden_size": [64, 32, 64],
+    "policy_hidden_size": [64, 32, 64],
+}
+RACETRACK_CONFIG = {
     "critic_hidden_size": [32, 32, 32],
     "policy_hidden_size": [32, 32, 32],
 }
-RACETRACK_CONFIG.update(RACETRACK_CONSTANTS)
+RACETRACK_CONFIG = {
+    "critic_hidden_size": [64, 32, 64],
+    "policy_hidden_size": [64, 32, 64],
+}
 
+RACETRACK_CONFIG.update(RACETRACK_CONSTANTS)
 
 ### INCLUDE YOUR CHOICE OF HYPERPARAMETERS HERE ###
 RACETRACK_HPARAMS = {
-    "critic_hidden_size": [[128,128],[256, 256]],
-    "policy_hidden_size": [[128,128],[256,256]],
-    }
-
-RACETRACK_HPARAMS = {
-    "critic_hidden_size": [64,64,64],
-    "policy_hidden_size": [16,16,16],
+    "critic_hidden_size": ...,
+    "policy_hidden_size": ...,
     }
 
 SWEEP_RESULTS_FILE_RACETRACK = "DDPG-Racetrack-sweep-results-ex4.pkl"

@@ -35,7 +35,6 @@ def question2_2() -> str:
 
 def question2_3() -> str:
     """
-    CREC Q SERA Q-LEARNING!
     (Multiple choice question):
     Between the two algorithms (Q-Learning and First-Visit MC), whose average evaluation return is impacted by gamma in
     a greater way?
@@ -54,7 +53,7 @@ def question2_4() -> str:
     by [Q-learning / First-Visit Monte Carlo] when compared to the other algorithm.
     return: answer (str): your answer as a string (100 words max)
     """
-    answer = ""  # TYPE YOUR ANSWER HERE (100 words max)
+    answer = "Monte Carlo updates the values given complete trajectories, while Q-Learning focuses on single-steps transitions. Hence, Q-Learning can learn from shorter sequences, which may make the impact of gamma more limited. When running multiple seeds, we observe that some trajectories of Monte-Carlo are catastrophically bad (<0.10), which is because gamma is too low and the agent does not consider future rewards."  
     return answer
 
 
@@ -71,7 +70,7 @@ def question3_1() -> str:
     c) 2e-4
     return: (str): your answer as a string. accepted strings: "a", "b" or "c"
     """
-    answer = "b"  # TYPE YOUR ANSWER HERE "a", "b" or "c"
+    answer = "c"  # TYPE YOUR ANSWER HERE "a", "b" or "c"
     return answer
 
 
@@ -85,7 +84,7 @@ def question3_2() -> str:
     c) 0.01
     return: (str): your answer as a string. accepted strings: "a", "b" or "c"
     """
-    answer = ""  # TYPE YOUR ANSWER HERE "a", "b" or "c"
+    answer = "c"  # TYPE YOUR ANSWER HERE "a", "b" or "c"
     return answer
 
 
@@ -99,7 +98,7 @@ def question3_3() -> str:
     c) 1e-5
     return: (str): your answer as a string. accepted strings: "a", "b" or "c"
     """
-    answer = ""  # TYPE YOUR ANSWER HERE "a", "b" or "c"
+    answer = "c"  # TYPE YOUR ANSWER HERE "a", "b" or "c"
     return answer
 
 
@@ -144,7 +143,7 @@ def question3_6() -> str:
     strategy you implemented).
     return: answer (str): your answer as a string (100 words max)
     """
-    answer = ""  # TYPE YOUR ANSWER HERE (100 words max)
+    answer = "A exploration fraction parameter is a more flexible option, as it allows the model to reach to the epsilon_min at an arbitrary timestep in training, while we with the decay rate parameter we only reach that minimum epsilon value at the end of training, unless we choose a decay_rate that is lower than epsilon_min (which may have bad dynamics)."  # TYPE YOUR ANSWER HERE (100 words max)
     return answer
 
 
@@ -155,9 +154,8 @@ def question3_7() -> str:
     (where we usually see a fairly steady decrease of the loss throughout training)
     return: answer (str): your answer as a string (150 words max)
     """
-    answer = ""  # TYPE YOUR ANSWER HERE (150 words max)
+    answer = "The targets we use for training are constantly changing and improving as the network learns. Therefore, as the network learns, so do the targets, causing the loss to periodically increase. In contrast, during standard supervised machine learning, the targets are static and fixed, and therefore the training loss decreases."  # TYPE YOUR ANSWER HERE (150 words max)
     return answer
-
 
 def question3_8() -> str:
     """
@@ -166,7 +164,7 @@ def question3_8() -> str:
     the DQN training process.
     return: answer (str): your answer as a string (100 words max)
     """
-    answer = "Because we update with frequency 2000"  # TYPE YOUR ANSWER HERE (100 words max)
+    answer = "These spikes correspond with the timesteps at which we update the target Q-Values. These updates cause immediate increases in the loss as the network has not been trained on them. Then, the target Q-values remain fixed until the next update, and the network learns the new targets, causing the loss to go down soon afterwards, leaving the shape of a spike."  # TYPE YOUR ANSWER HERE (100 words max)
     return answer
 
 
@@ -181,5 +179,5 @@ def question5_1() -> str:
     the best performance of your agents
     return: answer (str): your answer as a string (200 words max)
     """
-    answer = ""  # TYPE YOUR ANSWER HERE (200 words max)
+    answer = "I've done an initial grid search for critic_learning_rate, buffer_capacity, policy_learning_rate, tau and gamma. I tried a few changes for critic_hidden_size and policy_hidden_size and decided to not explore it further as I wasn't substantially improving my results. Then, I selected 2 values for the other hyperparameters that seemed to have good results; I picked a value for buffer_capacity that seemed to have better results. Finally, for critic_learning_rate and policy_learning_rate, I picked the highest hparameter value (1e-4) and did exponential decay scheduling. This seemed to improve results for gamma=0.99 and tau=0.01, and decided to adopt it for the other configurations, Finally, I did a grid search for tau and gamma."  # TYPE YOUR ANSWER HERE (200 words max)
     return answer

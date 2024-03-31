@@ -29,8 +29,8 @@ ENV = "RACETRACK"
 RACETRACK_CONFIG = {
     "policy_learning_rate": 1e-4,
     "critic_learning_rate": 1e-3,
-    "critic_hidden_size": [32, 32, 32],
-    "policy_hidden_size": [32, 32, 32],
+    "critic_hidden_size": [64, 32, 64],
+    "policy_hidden_size": [64, 32, 64],
     "gamma": 0.99,
     "tau": 0.5,
     "batch_size": 32,
@@ -40,9 +40,14 @@ RACETRACK_CONFIG.update(RACETRACK_CONSTANTS)
 
 ### INCLUDE YOUR CHOICE OF HYPERPARAMETERS HERE ###
 RACETRACK_HPARAMS = {
-    "critic_hidden_size": ...,
-    "policy_hidden_size": ...,
-}
+    "critic_hidden_size": [64, 32, 64],
+    "policy_hidden_size": [64, 32, 64],
+    "buffer_capacity": [int(1e5),5*int(1e4),3*int(1e5)],
+    "critic_learning_rate": [1e-3, 1e-4, 1e-5],
+    "policy_learning_rate": [1e-3, 1e-4, 1e-5],
+    "tau": [0.001,0.01, 0.1],
+    "gamma": [0.99,0.80, 0.25],
+    }
 
 SWEEP_RESULTS_FILE_BIPEDAL = "DDPG-Racetrack-sweep-results-ex5.pkl"
 

@@ -99,6 +99,8 @@ class DDPG(Agent):
         self.critic_learning_rate = critic_learning_rate
         self.policy_learning_rate = policy_learning_rate
         self.tau = tau
+        self.int_timestep = 0
+
 
         # ################################################### #
         # DEFINE A GAUSSIAN THAT WILL BE USED FOR EXPLORATION #
@@ -152,19 +154,37 @@ class DDPG(Agent):
             v.load_state_dict(checkpoint[k].state_dict())
 
 
-    def schedule_hyperparameters(self, timestep: int, max_timesteps: int):
+    def schedule_hyperparameters(self, timesteps_elapsed: int, max_timesteps: int):
         """Updates the hyperparameters
 
         **YOU MAY IMPLEMENT THIS FUNCTION FOR Q5**
 
         This function is called before every episode and allows you to schedule your
         hyperparameters.
-
-        :param timestep (int): current timestep at the beginning of the episode
-        :param max_timestep (int): maximum timesteps that the training loop will run for
         """
-        ### PUT YOUR CODE HERE ###
-        pass
+        self.int_timestep += 1
+        timestep = timesteps_elapsed
+        exploration_max = 1.0
+        exploration_min = 0.1
+        exploration_decay = 0.0001
+        actor_lr_max = 0.001
+        actor_lr_min = 0.0001
+        actor_lr_decay = 0.0001 
+        critic_lr_max = 0.001
+        critic_lr_min = 0.0001
+        critic_lr_decay = 0.0001 
+        self.exploration_rate = exploration_min + \
+            (exploration_max - exploration_min) * \
+            np.exp(-exploration_decay * timestep)
+
+        self.actor_learning_rate = actor_lr_min + \
+            (actor_lr_max - actor_lr_min) * \
+            np.exp(-actor_lr_decay * timestep)
+
+        self.critic_learning_rate = critic_lr_min + \
+            (critic_lr_max - critic_lr_min) * \
+            np.exp(-critic_lr_decay * timestep)
+        
 
     def act(self, obs: np.ndarray, explore: bool):
         """Returns an action (should be called at every timestep)
@@ -179,6 +199,7 @@ class DDPG(Agent):
         :param explore (bool): flag indicating whether we should explore
         :return (sample from self.action_space): action the agent should perform
         """
+        #self.schedule_hyperparameters()
         self.actor.eval()
 
         obs_aux = torch.from_numpy(obs).float()
@@ -201,39 +222,38 @@ class DDPG(Agent):
         :param batch (Transition): batch vector from replay buffer
         :return (Dict[str, float]): dictionary mapping from loss names to loss values
         """
-        self.actor.train()
+        mse = torch.nn.MSELoss()
+        states, actions, rewards, next_states, done = batch.states.clone().detach(), batch.actions.clone().detach(), batch.rewards.clone().detach(), batch.next_states.clone().detach(), batch.done.clone().detach()
+
+        self.actor_target.eval()
+        self.actor.eval()
+        self.critic_target.eval()
         self.critic.train()
-        self.actor_target.train()
-        self.critic_target.train()
+        Q = self.critic(torch.cat((states,actions),dim=-1))
+        next_actions = self.actor_target(next_states).detach()
+        next_q_values = self.critic_target(torch.cat((next_states, next_actions),dim=-1))
+        targets = (rewards + ((1.0 - done) * self.gamma * next_q_values))
 
-        states, actions, next_states, rewards, done = batch.states.clone().detach(), batch.actions.clone().detach(), batch.next_states.clone().detach(), batch.rewards.clone().detach(), batch.done.clone().detach()
+        q_loss = mse(Q,targets)
 
-        q_loss = 0.0
-        p_loss = 0.0
-
-        # Update critic
         self.critic_optim.zero_grad()
-        q_values = self.critic(torch.cat((actions, states), dim=1))
-        next_actions = self.actor_target(next_states)
-        next_q_values = self.critic_target(torch.cat((next_actions, next_states), dim=1))
-        target_q_values = rewards + self.gamma * next_q_values * (1 - done)
-        q_loss = F.mse_loss(q_values, target_q_values.detach())
         q_loss.backward()
         self.critic_optim.step()
 
-        # Update actor
+        self.actor.train()
+        self.critic.eval()
+        actor_actions = self.actor(states)
+        p_loss = -self.critic(torch.cat((states,actor_actions),dim=-1)).mean()
+
         self.policy_optim.zero_grad()
-        p_loss = -self.critic(torch.cat((states, self.actor(states)), dim=1)).mean()
         p_loss.backward()
         self.policy_optim.step()
 
-        # Update target networks
-        self.actor_target.soft_update(self.actor, self.tau)
-        self.critic_target.soft_update(self.critic, self.tau)
+        self.critic_target.soft_update(self.critic,self.tau)
+        self.actor_target.soft_update(self.actor,self.tau)
 
-
-
-
+        q_loss = q_loss.item()
+        p_loss = p_loss.item()
         return {
             "q_loss": q_loss,
             "p_loss": p_loss,
